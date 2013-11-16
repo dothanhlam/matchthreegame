@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>MatchTree based game - for testing purpose only</title>
+    <script src="libs/phaser.io/phaser.js"></script>
+    <script src="matchtree/PreLoader.js"></script>
+    <script src="matchtree/GamePlay.js"></script>
+    <link rel="stylesheet" href="css/matchthree.css" type="text/css" >
+</head>
+<body>
+    <div class="container">
+        <div class="score">
+            <span><img src="assets/coinsIcon.png"><p class= "scoreText" id="score"></p></span>
+        </div>
+        <div><p class="heading">Match Three</p></div>
+        <div id="gameContainer"></div>
+        <div class="coins">
+            <span><img src="assets/dollarIcon.png"><p class= "scoreText" id="coin"></p></span>
+        </div>
+    </div>
+    <script type="text/javascript">
+        window.onload = function() {
+            var game = new Phaser.Game(520, 520, Phaser.AUTO, 'gameContainer');
+            game.state.add('Preloader', MatchThree.PreLoader);
+            game.state.add('GamePlay', MatchThree.GamePlay);
+            game.state.start('Preloader');
+        }
+    </script>
+</body>
+</html>

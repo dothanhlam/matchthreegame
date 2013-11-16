@@ -1,0 +1,23 @@
+M-BIZ GLOBAL
+Tasks required:
+1- items should be shown in a matrix form [done]
+Please refer to game UI that specifics all items (aka gem) in a matrix form
+
+2- user should match any of 3 shapes together (horizontal / vertical). [done]
+Please click the item and click on another to swap for buiding matching of 3 shapes
+
+3- when user match 3 items a new Coin item should appear in place of third matched item. [done]
+New coin appears in place of third item
+
+4- when user touch the coin item the coin item disapear. [done]
+Please touch / or click the coin
+
+5- score should be displayed in top right corner. [done]
+Please check the score after building matching of 3 shapes
+
+6- number of gained coins should be displayed below items matrix on the right. [done]
+Please check the coins number after clicking or touching the coin
+
+7- match 3 gives user 100 point. [done]
+
+8- get coin gives user 150 point. [done]
