@@ -65,21 +65,17 @@ MatchThree.GamePlay.prototype = {
             if (this.isStreak(this.selectorRow,this.selectorColumn)||this.isStreak(clickedRow,clickedColumn)) {
                 this.swapGem(this.selectorRow, this.selectorColumn, clickedRow, clickedColumn);
 
-                var lastCoord = null;
                 if (this.isStreak(this.selectorRow,this.selectorColumn)) {
-                    lastCoord = this.removeGems(this.selectorRow,this.selectorColumn);
+                   this.removeGems(this.selectorRow,this.selectorColumn);
                 }
                 if (this.isStreak(clickedRow,clickedColumn)) {
-                    lastCoord = this.removeGems(clickedRow,clickedColumn);
+                   this.removeGems(clickedRow,clickedColumn);
                 }
 
 
                 this.score += this.MATCHING_3_GEMS_POINT; // 7 - matching 3 gives user 100 points
                 this.updateScoreAndCoins();
 
-                var coin = this.game.add.sprite(lastCoord[1] * this.GEM_SIZE, lastCoord[0] * this.GEM_SIZE, "goldCoin");
-                coin.inputEnabled = true;
-                coin.events.onInputDown.add(this.coinClickHandler, this);
             }
             else {
                 this.swapGemValue(this.selectorRow, this.selectorColumn, clickedRow, clickedColumn);
@@ -87,13 +83,6 @@ MatchThree.GamePlay.prototype = {
             this.selectorColumn = -10;
             this.selectorRow = -10;
         }
-    },
-
-    coinClickHandler: function(coin) {
-        coin.destroy()
-        this.score += this.COLLECTING_COIN_POINT; // 8 - getting coin gives user 150 point
-        this.gainedCoins ++;
-        this.updateScoreAndCoins();
     },
 
     // game logical
@@ -174,6 +163,15 @@ MatchThree.GamePlay.prototype = {
         return null;
     },
 
+    removeGemByName: function(name) {
+        for (var i = 0; i < this.gemInstanceArray.length; i ++) {
+            if (this.gemInstanceArray[i].name === name) {
+                this.gemInstanceArray.splice(i, 1);
+                return;
+            }
+        }
+    },
+
     swapGem: function(row1,col1,row2,col2) {
         var gem1 = this.getGemByName(row1 + "_" + col1);
         var gem2 = this.getGemByName(row2 + "_" + col2);
@@ -198,6 +196,7 @@ MatchThree.GamePlay.prototype = {
         var gemsToRemove = [row+"_"+col];
         var current = this.gemsArray[row][col];
         var tmp;
+
         if (this.checkRow(row,col)>2) {
             tmp = col;
             while (this.isSameGem(current,row,tmp-1)) {
@@ -210,6 +209,7 @@ MatchThree.GamePlay.prototype = {
                 gemsToRemove.push(row+"_"+tmp);
             }
         }
+
         if (this.checkColumn(row,col)>2) {
             tmp = row;
             while (this.isSameGem(current,tmp-1,col)) {
@@ -223,19 +223,67 @@ MatchThree.GamePlay.prototype = {
             }
         }
 
-        var lastCoord = null;
         for (var i = 0; i < gemsToRemove.length; i ++) {
             var removedGem = this.getGemByName(gemsToRemove[i]);
             if (removedGem != null) {
                 var coord = removedGem.name.split("_");
                 this.gemsArray[coord[0]][coord[1]] = null;
                 removedGem.destroy();
+                this.removeGemByName(gemsToRemove[i]);
+            }
+        }
 
-                if (i == gemsToRemove.length - 1) {
-                    lastCoord = coord;
+        this.adjustGems();
+        this.replaceGems();
+    },
+
+    adjustGems: function() {
+        for (var j = 0; j < this.COLUMNS; j++) {
+            for (var i = this.ROWS - 1; i > 0; i--) {
+                if (this.gemsArray[i][j] == null) {
+                    for (var k = i; k > 0; k--) {
+                        if (this.gemsArray[k][j]!= null) {
+                            break;
+                        }
+                    }
+
+                    if (this.gemsArray[k][j]!= null) {
+                        this.gemsArray[i][j] = this.gemsArray[k][j];
+                        this.gemsArray[k][j] = null;
+                        var gem = this.getGemByName(k+"_"+j);
+                        if (gem != null) {
+                            gem.y = this.GEM_SIZE * i;
+                            gem.name = i+"_"+j;
+
+                            if (this.isStreak(i,j)) { // combo
+                                this.removeGems(i,j);
+                                this.gainedCoins ++;
+                                this.updateScoreAndCoins();
+                            }
+                        }
+                    }
                 }
             }
         }
-        return lastCoord;
+    },
+
+    replaceGems: function() {
+        for (var i = this.COLUMNS - 1; i >= 0; i --) {
+            for (var j = 0; j < this.ROWS; j++) {
+               if (this.gemsArray[i][j] == null) {
+                   this.gemsArray[i][j]= Math.floor(Math.random()* this.GEMS_NUM);
+                    var gem = this.game.add.sprite(j * this.GEM_SIZE, i * this.GEM_SIZE, this.colorsArray[this.gemsArray[i][j]]);
+                    gem.name = i + "_" + j;
+                    this.gemInstanceArray.push(gem);
+                    gem.inputEnabled = true;
+                    gem.events.onInputDown.add(this.gemClickHandler, this);
+                   if (this.isStreak(i,j)) { // combo
+                       this.removeGems(i,j);
+                       this.gainedCoins ++;
+                       this.updateScoreAndCoins();
+                   }
+               }
+            }
+        }
     }
 };
