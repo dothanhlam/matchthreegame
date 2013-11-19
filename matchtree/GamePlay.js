@@ -10,6 +10,7 @@
 MatchThree.GamePlay = function (game) {
     this.MATCHING_3_GEMS_POINT = 100;
     this.COLLECTING_COIN_POINT = 150;
+    this.COINTS_FOR_COMBO = 1;
 
     this.ROWS = 8;
     this.COLUMNS = 8
@@ -26,12 +27,12 @@ MatchThree.GamePlay = function (game) {
 
     this.gainedCoins = 0;
     this.score = 0;
-    this.updateScoreAndCoins();
 };
 
 MatchThree.GamePlay.prototype = {
 
     create: function() {
+        this.updateScoreAndCoins(0, 0);
         this.initGame();
     },
 
@@ -43,11 +44,7 @@ MatchThree.GamePlay.prototype = {
                     this.gemsArray[i][j]= Math.floor(Math.random()* this.GEMS_NUM);
                 }
                 while (this.isStreak(i,j));
-                var gem = this.game.add.sprite(j * this.GEM_SIZE, i * this.GEM_SIZE, this.colorsArray[this.gemsArray[i][j]]);
-                gem.name = i + "_" + j;
-                this.gemInstanceArray.push(gem);
-                gem.inputEnabled = true;
-                gem.events.onInputDown.add(this.gemClickHandler, this);
+                this.addGem(i + "_" + j, j * this.GEM_SIZE, i * this.GEM_SIZE, this.colorsArray[this.gemsArray[i][j]], this.gemClickHandler);
             }
         }
     },
@@ -71,11 +68,7 @@ MatchThree.GamePlay.prototype = {
                 if (this.isStreak(clickedRow,clickedColumn)) {
                    this.removeGems(clickedRow,clickedColumn);
                 }
-
-
-                this.score += this.MATCHING_3_GEMS_POINT; // 7 - matching 3 gives user 100 points
-                this.updateScoreAndCoins();
-
+                this.updateScoreAndCoins(0, this.MATCHING_3_GEMS_POINT);
             }
             else {
                 this.swapGemValue(this.selectorRow, this.selectorColumn, clickedRow, clickedColumn);
@@ -148,12 +141,22 @@ MatchThree.GamePlay.prototype = {
     },
 
     //utilities functions
-    updateScoreAndCoins: function() {
+    updateScoreAndCoins: function(coins, newScore) {
+        this.gainedCoins += coins;
+        this.score += newScore;
         document.getElementById("coin").innerText = this.gainedCoins;
         document.getElementById("score").innerText = this.score;
     },
 
     // gems management functions
+    addGem: function(name, x, y, color, clickHandler) {
+        var gem = this.game.add.sprite(x, -this.GEM_SIZE, color);
+        gem.name = name;
+        this.gemInstanceArray.push(gem);
+        gem.inputEnabled = true;
+        gem.events.onInputDown.add(clickHandler, this);
+    },
+
     getGemByName: function(name) {
         for (var i = 0; i < this.gemInstanceArray.length; i ++) {
             if (this.gemInstanceArray[i].name === name) {
@@ -257,8 +260,7 @@ MatchThree.GamePlay.prototype = {
 
                             if (this.isStreak(i,j)) { // combo
                                 this.removeGems(i,j);
-                                this.gainedCoins ++;
-                                this.updateScoreAndCoins();
+                                this.updateScoreAndCoins(this.COINTS_FOR_COMBO, this.COLLECTING_COIN_POINT);
                             }
                         }
                     }
@@ -272,15 +274,10 @@ MatchThree.GamePlay.prototype = {
             for (var j = 0; j < this.ROWS; j++) {
                if (this.gemsArray[i][j] == null) {
                    this.gemsArray[i][j]= Math.floor(Math.random()* this.GEMS_NUM);
-                    var gem = this.game.add.sprite(j * this.GEM_SIZE, i * this.GEM_SIZE, this.colorsArray[this.gemsArray[i][j]]);
-                    gem.name = i + "_" + j;
-                    this.gemInstanceArray.push(gem);
-                    gem.inputEnabled = true;
-                    gem.events.onInputDown.add(this.gemClickHandler, this);
+                   this.addGem(i + "_" + j, j * this.GEM_SIZE, i * this.GEM_SIZE, this.colorsArray[this.gemsArray[i][j]], this.gemClickHandler);
                    if (this.isStreak(i,j)) { // combo
                        this.removeGems(i,j);
-                       this.gainedCoins ++;
-                       this.updateScoreAndCoins();
+                       this.updateScoreAndCoins(this.COINTS_FOR_COMBO, this.COLLECTING_COIN_POINT);
                    }
                }
             }
