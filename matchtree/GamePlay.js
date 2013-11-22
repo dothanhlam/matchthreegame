@@ -22,8 +22,8 @@ MatchThree.GamePlay = function (game) {
     this.gemsArray = [];
     this.gemInstanceArray = [];
 
-    this.selectorRow = -10;
-    this.selectorColumn = -10;
+    this.selectorRow = -this.ROWS;
+    this.selectorColumn = -this.COLUMNS;
 
     this.gainedCoins = 0;
     this.score = 0;
@@ -73,8 +73,8 @@ MatchThree.GamePlay.prototype = {
             else {
                 this.swapGemValue(this.selectorRow, this.selectorColumn, clickedRow, clickedColumn);
             }
-            this.selectorColumn = -10;
-            this.selectorRow = -10;
+            this.selectorColumn = -this.COLUMNS;
+            this.selectorRow = -this.ROWS;
         }
     },
 
@@ -150,7 +150,7 @@ MatchThree.GamePlay.prototype = {
 
     // gems management functions
     addGem: function(name, x, y, color, clickHandler) {
-        var gem = this.game.add.sprite(x, -this.GEM_SIZE, color);
+        var gem = this.game.add.sprite(x, y, color);
         gem.name = name;
         this.gemInstanceArray.push(gem);
         gem.inputEnabled = true;
@@ -182,6 +182,7 @@ MatchThree.GamePlay.prototype = {
         if ((gem1 == null) || (gem2 == null)) {
             return;
         }
+
 
         gem1.x = col2 * this.GEM_SIZE;
         gem1.y = row2 * this.GEM_SIZE;
